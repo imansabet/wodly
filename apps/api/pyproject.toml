@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ryff.lint]
+select = ["E","F","I","UP","B","ASYNC"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
