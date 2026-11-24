@@ -1,3 +1,14 @@
+[project]
+name = "wodly"
+version = "0.1.0"
+description = "your personal box"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncpg>=0.32.0",
+    "sqlalchemy[asyncio]>=2.1.9",
+]
+
 [tool.ruff]
 line-length = 88
 target-version = "py312"
