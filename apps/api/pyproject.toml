@@ -9,6 +9,7 @@ dependencies = [
     "asyncpg>=0.32.0",
     "pyjwt>=2.15.1",
     "sqlalchemy[asyncio]>=2.1.9",
+    "tzdata>=2026.6",
 ]
 
 [tool.ruff]

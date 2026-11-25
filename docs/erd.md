@@ -47,3 +47,39 @@ erDiagram
         timestamptz created_at
     }
 ```
+
+## Sessions, workouts and bookings
+
+```mermaid
+erDiagram
+    BOX ||--o{ WORKOUT : owns
+    BOX ||--o{ TRAINING_SESSION : schedules
+    WORKOUT ||--o{ TRAINING_SESSION : "used by"
+    USER ||--o{ TRAINING_SESSION : coaches
+    TRAINING_SESSION ||--o{ BOOKING : has
+    USER ||--o{ BOOKING : makes
+
+    WORKOUT {
+        uuid id PK
+        uuid box_id FK
+        string title
+        text description
+        string score_type
+        int time_cap_seconds
+    }
+    TRAINING_SESSION {
+        uuid id PK
+        uuid box_id FK
+        uuid coach_id FK
+        uuid workout_id FK "nullable"
+        timestamptz starts_at
+        int duration_minutes
+        int capacity
+        bool canceled
+    }
+    BOOKING {
+        uuid id PK
+        uuid session_id FK
+        uuid user_id FK
+    }
+```
