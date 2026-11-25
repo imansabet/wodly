@@ -1,15 +1,13 @@
-from typing import Annotated
-
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from wodly_api.config import settings
-from wodly_api.db import get_session
+from wodly_api.db import SessionDep
+from wodly_api.routers import auth, users
 
 app = FastAPI(title="Wodly API", version="0.1.0")
-
-SessionDep = Annotated[AsyncSession, Depends(get_session)]
+app.include_router(auth.router)
+app.include_router(users.router)
 
 
 @app.get("/health", tags=["system"])
