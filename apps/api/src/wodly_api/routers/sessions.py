@@ -210,6 +210,17 @@ async def list_sessions(
     )
 
 
+@router.get("/sessions/{session_id}")
+async def read_session(
+    session_id: uuid.UUID,
+    user: CurrentUser,
+    membership: AnyMember,
+    session: SessionDep,
+) -> SessionOut:
+    await _get_session(session, membership.box_id, session_id)
+    return await _one_out(session, user.id, session_id)
+
+
 @router.patch("/sessions/{session_id}")
 async def update_session(
     session_id: uuid.UUID,

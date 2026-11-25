@@ -241,3 +241,17 @@ async def test_capacity_cannot_drop_below_bookings(client, login):
     assert r.status_code == 409
     r = await client.patch(url, json={"capacity": 2}, headers=owner)
     assert r.status_code == 200
+
+
+async def test_get_single_session(client, login):
+    owner, box_id = await _box(client, login)
+    athlete = await _join(client, login, owner, box_id, ATH1, "athlete")
+    s = await _create(client, owner, box_id)
+
+    r = await client.get(f"/boxes/{box_id}/sessions/{s['id']}", headers=athlete)
+    assert r.status_code == 200
+    assert r.json()["workout"]["title"] == "Fran"
+
+    missing = "00000000-0000-0000-0000-000000000001"
+    r = await client.get(f"/boxes/{box_id}/sessions/{missing}", headers=athlete)
+    assert r.status_code == 404

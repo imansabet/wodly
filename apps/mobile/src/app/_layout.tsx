@@ -44,6 +44,8 @@ function RootNavigator() {
         <Stack.Screen name="home" />
         <Stack.Screen name="members" />
         <Stack.Screen name="invite" />
+        <Stack.Screen name="new-session" />
+        <Stack.Screen name="session/[id]" />
       </Stack.Protected>
     </Stack>
   );
