@@ -73,8 +73,14 @@ class MemberOut(BaseModel):
 
 class InviteCreate(BaseModel):
     role: Role
+    label: str | None = Field(default=None, max_length=80)
     expires_in_days: int = Field(default=7, ge=1, le=30)
     max_uses: int = Field(default=1, ge=1, le=100)
+
+    @field_validator("label")
+    @classmethod
+    def _clean_label(cls, value: str | None) -> str | None:
+        return (value or "").strip() or None
 
     @field_validator("role")
     @classmethod
@@ -89,6 +95,7 @@ class InviteOut(BaseModel):
 
     code: str
     role: Role
+    label: str | None
     expires_at: datetime
     max_uses: int
     uses: int

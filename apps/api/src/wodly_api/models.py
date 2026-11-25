@@ -80,6 +80,8 @@ class Invite(Base):
     max_uses: Mapped[int] = mapped_column(Integer, default=1)
     uses: Mapped[int] = mapped_column(Integer, default=0)
     revoked: Mapped[bool] = mapped_column(Boolean, default=False)
+    label: Mapped[str | None] = mapped_column(String(80))
+    created_at: Mapped[datetime] = _created_at()
 
 
 class OtpChallenge(Base):

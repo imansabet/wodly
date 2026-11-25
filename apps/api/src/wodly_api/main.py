@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from wodly_api.config import settings
@@ -6,6 +7,16 @@ from wodly_api.db import SessionDep
 from wodly_api.routers import auth, boxes, invites, users
 
 app = FastAPI(title="Wodly API", version="0.1.0")
+
+if settings.env == "local":
+    # Dev only: lets the Expo web build call the API from any origin.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=".*",
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(boxes.router)

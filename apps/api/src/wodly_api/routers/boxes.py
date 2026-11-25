@@ -84,6 +84,7 @@ async def create_invite(
         created_by=user.id,
         code=generate_invite_code(),
         role=body.role,
+        label=body.label,
         expires_at=datetime.now(UTC) + timedelta(days=body.expires_in_days),
         max_uses=body.max_uses,
         uses=0,
@@ -92,3 +93,41 @@ async def create_invite(
     session.add(invite)
     await session.commit()
     return InviteOut.model_validate(invite)
+
+
+@router.get("/{box_id}/invites")
+async def list_invites(
+    user: CurrentUser, membership: CoachOrOwner, session: SessionDep
+) -> list[InviteOut]:
+    query = (
+        select(Invite)
+        .where(
+            Invite.box_id == membership.box_id,
+            Invite.revoked.is_(False),
+            Invite.expires_at > datetime.now(UTC),
+            Invite.uses < Invite.max_uses,
+        )
+        .order_by(Invite.created_at.desc())
+    )
+    if membership.role != Role.OWNER:
+        query = query.where(Invite.created_by == user.id)
+    rows = await session.scalars(query)
+    return [InviteOut.model_validate(invite) for invite in rows]
+
+
+@router.delete("/{box_id}/invites/{code}")
+async def revoke_invite(
+    code: str, user: CurrentUser, membership: CoachOrOwner, session: SessionDep
+) -> dict[str, str]:
+    invite = await session.scalar(
+        select(Invite).where(
+            Invite.box_id == membership.box_id, Invite.code == code.upper()
+        )
+    )
+    if invite is None or (
+        membership.role != Role.OWNER and invite.created_by != user.id
+    ):
+        raise HTTPException(status_code=404, detail="Invite not found")
+    invite.revoked = True
+    await session.commit()
+    return {"status": "revoked"}
