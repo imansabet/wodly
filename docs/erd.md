@@ -83,3 +83,28 @@ erDiagram
         uuid user_id FK
     }
 ```
+
+## Results
+
+```mermaid
+erDiagram
+    TRAINING_SESSION ||--o{ RESULT : "scored in"
+    WORKOUT ||--o{ RESULT : "pinned to"
+    USER ||--o{ RESULT : logs
+
+    RESULT {
+        uuid id PK
+        uuid box_id FK
+        uuid session_id FK
+        uuid workout_id FK
+        uuid user_id FK "unique with session_id"
+        bool rx
+        int seconds
+        bool capped
+        int rounds
+        int reps
+        numeric load_kg
+        int calories
+        string notes
+    }
+```

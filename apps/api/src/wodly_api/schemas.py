@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 
 from pydantic import (
     AwareDatetime,
@@ -191,3 +192,50 @@ class AttendeeOut(BaseModel):
     user_id: uuid.UUID
     full_name: str | None
     phone: str
+
+
+class ResultIn(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    rx: bool = True
+    seconds: int | None = Field(default=None, ge=1, le=86_400)
+    capped: bool = False
+    rounds: int | None = Field(default=None, ge=0, le=1_000)
+    reps: int | None = Field(default=None, ge=0, le=100_000)
+    load_kg: Decimal | None = Field(default=None, gt=0, le=1_000, decimal_places=2)
+    calories: int | None = Field(default=None, ge=0, le=10_000)
+    notes: str | None = Field(default=None, max_length=500)
+
+    @field_validator("notes")
+    @classmethod
+    def _blank_notes(cls, value: str | None) -> str | None:
+        return value or None
+
+
+class ResultOut(BaseModel):
+    session_id: uuid.UUID
+    rx: bool
+    seconds: int | None
+    capped: bool
+    rounds: int | None
+    reps: int | None
+    load_kg: float | None
+    calories: int | None
+    notes: str | None
+    display: str
+
+
+class MyResultOut(ResultOut):
+    workout_title: str
+    score_type: ScoreType
+    starts_at: datetime
+
+
+class LeaderboardEntry(BaseModel):
+    rank: int
+    user_id: uuid.UUID
+    full_name: str | None
+    rx: bool
+    display: str
+    notes: str | None
+    is_me: bool

@@ -1,6 +1,7 @@
 import enum
 import uuid
 from datetime import datetime
+from decimal import Decimal
 
 from sqlalchemy import (
     Boolean,
@@ -9,6 +10,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -159,3 +161,34 @@ class Booking(Base):
         ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
     created_at: Mapped[datetime] = _created_at()
+
+
+class Result(Base):
+    __tablename__ = "results"
+    __table_args__ = (UniqueConstraint("session_id", "user_id"),)
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    box_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("boxes.id", ondelete="CASCADE"), index=True
+    )
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("training_sessions.id", ondelete="CASCADE"), index=True
+    )
+    workout_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("workouts.id", ondelete="CASCADE")
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    rx: Mapped[bool] = mapped_column(Boolean, default=True)
+    seconds: Mapped[int | None] = mapped_column(Integer)
+    capped: Mapped[bool] = mapped_column(Boolean, default=False)
+    rounds: Mapped[int | None] = mapped_column(Integer)
+    reps: Mapped[int | None] = mapped_column(Integer)
+    load_kg: Mapped[Decimal | None] = mapped_column(Numeric(7, 2))
+    calories: Mapped[int | None] = mapped_column(Integer)
+    notes: Mapped[str | None] = mapped_column(String(500))
+    created_at: Mapped[datetime] = _created_at()
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )

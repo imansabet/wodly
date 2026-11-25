@@ -37,7 +37,7 @@ async def _get_workout(
     return workout
 
 
-async def _get_session(
+async def get_session_or_404(
     session: AsyncSession,
     box_id: uuid.UUID,
     session_id: uuid.UUID,
@@ -217,7 +217,7 @@ async def read_session(
     membership: AnyMember,
     session: SessionDep,
 ) -> SessionOut:
-    await _get_session(session, membership.box_id, session_id)
+    await get_session_or_404(session, membership.box_id, session_id)
     return await _one_out(session, user.id, session_id)
 
 
@@ -229,7 +229,7 @@ async def update_session(
     membership: CoachOrOwner,
     session: SessionDep,
 ) -> SessionOut:
-    target = await _get_session(session, membership.box_id, session_id, lock=True)
+    target = await get_session_or_404(session, membership.box_id, session_id, lock=True)
     if membership.role != Role.OWNER and target.coach_id != user.id:
         raise HTTPException(status_code=403, detail="Not your session")
 
@@ -270,7 +270,7 @@ async def book_session(
     session: SessionDep,
 ) -> SessionOut:
     # The row lock serializes concurrent bookings, so capacity is never exceeded.
-    target = await _get_session(session, membership.box_id, session_id, lock=True)
+    target = await get_session_or_404(session, membership.box_id, session_id, lock=True)
     ends_at = target.starts_at + timedelta(minutes=target.duration_minutes)
     if target.canceled:
         raise HTTPException(status_code=409, detail="Session is canceled")
@@ -299,7 +299,7 @@ async def cancel_booking(
     membership: AnyMember,
     session: SessionDep,
 ) -> SessionOut:
-    target = await _get_session(session, membership.box_id, session_id, lock=True)
+    target = await get_session_or_404(session, membership.box_id, session_id, lock=True)
     booking = await session.scalar(
         select(Booking).where(
             Booking.session_id == target.id, Booking.user_id == user.id
@@ -316,7 +316,7 @@ async def cancel_booking(
 async def list_attendees(
     session_id: uuid.UUID, membership: CoachOrOwner, session: SessionDep
 ) -> list[AttendeeOut]:
-    target = await _get_session(session, membership.box_id, session_id)
+    target = await get_session_or_404(session, membership.box_id, session_id)
     rows = await session.scalars(
         select(User)
         .join(Booking, Booking.user_id == User.id)

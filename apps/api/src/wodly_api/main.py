@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 from wodly_api.config import settings
 from wodly_api.db import SessionDep
-from wodly_api.routers import auth, boxes, invites, sessions, users
+from wodly_api.routers import auth, boxes, invites, results, sessions, users
 
 app = FastAPI(title="Wodly API", version="0.1.0")
 
@@ -22,6 +22,7 @@ app.include_router(users.router)
 app.include_router(boxes.router)
 app.include_router(invites.router)
 app.include_router(sessions.router)
+app.include_router(results.router)
 
 
 @app.get("/health", tags=["system"])
