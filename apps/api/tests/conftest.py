@@ -60,3 +60,15 @@ async def client(engine: AsyncEngine, sms: FakeSms) -> AsyncIterator[AsyncClient
     ) as http:
         yield http
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def login(client: AsyncClient, sms: FakeSms):
+    async def _login(phone: str) -> dict[str, str]:
+        await client.post("/auth/otp/request", json={"phone": phone})
+        r = await client.post(
+            "/auth/otp/verify", json={"phone": phone, "code": sms.last_code}
+        )
+        return {"Authorization": f"Bearer {r.json()['access_token']}"}
+
+    return _login

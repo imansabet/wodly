@@ -40,3 +40,10 @@ def decode_access_token(token: str) -> uuid.UUID | None:
         return uuid.UUID(payload["sub"])
     except (jwt.PyJWTError, KeyError, ValueError):
         return None
+
+
+_INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+
+def generate_invite_code(length: int = 8) -> str:
+    return "".join(secrets.choice(_INVITE_ALPHABET) for _ in range(length))
